@@ -5,6 +5,11 @@ VisualStudioVersion = 12.0.0.0
 MinimumVisualStudioVersion = 10.0.0.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "hot-ithome", "hot-ithome.fsproj", "{23BF5E4F-8025-45FD-A1D1-0CB48BFD1A84}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{58FDCCB6-4F17-48FC-812E-1CCF8A6C673E}"
+ProjectSection(SolutionItems) = preProject
+	fsc.exe = fsc.exe
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

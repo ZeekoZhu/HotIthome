@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="$(OS)=='Unix'">
-    <FscToolPath>/home/zeeko/ProgramFiles/fsc</FscToolPath>
+    <FscToolPath>./</FscToolPath>
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
 
