@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(OS)=='Unix'">
+    <FscToolPath>/home/zeeko/ProgramFiles/fsc</FscToolPath>
+    <FscToolExe>fsc.exe</FscToolExe>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="IthomeSpider.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="2.0.17" />
+    <PackageReference Include="Fsharp.Data" Version="2.4.2" />
+  </ItemGroup>
+
+  <Target Name="Copy MDBs"
+          Condition="$(OS)=='Linux'"
+          AfterTargets="Build">
+        <Copy SourceFiles="$(IntermediateOutputPath)/$(AssemblyName).exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+  </Target>
+
+</Project>
