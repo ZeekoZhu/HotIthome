@@ -56,3 +56,10 @@ let GetCommentsOf(articleId : int) =
             else ()
         }
     loadCommentsAtPage 1
+
+/// 获取指定集合中新闻的评论
+let GetCommentsOfRange (articles:int list) =
+    asyncSeq {
+        for id in articles do 
+            yield! GetCommentsOf id
+    }

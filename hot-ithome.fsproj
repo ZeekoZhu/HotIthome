@@ -7,7 +7,6 @@
     <FscToolPath>./</FscToolPath>
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="IthomeSpider.fs" />
     <Compile Include="Program.fs" />
@@ -15,12 +14,9 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="2.0.17" />
     <PackageReference Include="Fsharp.Data" Version="2.4.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
-
-  <Target Name="Copy MDBs"
-          Condition="$(OS)=='Linux'"
-          AfterTargets="Build">
-        <Copy SourceFiles="$(IntermediateOutputPath)/$(AssemblyName).exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+  <Target Name="Copy MDBs" Condition="$(OS)=='Linux'" AfterTargets="Build">
+    <Copy SourceFiles="$(IntermediateOutputPath)/$(AssemblyName).exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
   </Target>
-
 </Project>
