@@ -40,12 +40,24 @@ let GetCommentsOf(articleId : int) =
     let rec loadCommentsAtPage (index : int) = 
         asyncSeq { 
             let! hash = getCommentHashOf (string articleId)
-            let! response = Http.AsyncRequestString(commentUrl, httpMethod = "POST", 
-                                                    body = FormValues [ "newsID", (string articleId)
-                                                                        "order", "false"
-                                                                        "page", (string index)
-                                                                        "type", "commentpage"
-                                                                        "hash", hash ])
+            let rec httpRetry() = 
+                async { 
+                    let! resp = Http.AsyncRequest(commentUrl, httpMethod = "POST", silentHttpErrors = true, 
+                                                  body = FormValues [ "newsID", (string articleId)
+                                                                      "order", "false"
+                                                                      "page", (string index)
+                                                                      "type", "commentpage"
+                                                                      "hash", hash ])
+                    if resp.StatusCode > 300 || resp.StatusCode < 200 then 
+                        printfn "retry after 10s"
+                        do! Async.Sleep(10 * 1000)
+                        return! httpRetry()
+                    else 
+                        return match resp.Body with
+                               | Text s -> s
+                               | _ -> failwith "response content error"
+                }
+            let! response = httpRetry()
             if (response.Length) <> 0 then 
                 let commentsInCurrentPage = 
                     HtmlDocument.Parse("""<html><body>""" + response + """</body></html>""").CssSelect(".entry") 
@@ -58,8 +70,8 @@ let GetCommentsOf(articleId : int) =
     loadCommentsAtPage 1
 
 /// 获取指定集合中新闻的评论
-let GetCommentsOfRange (articles:int list) =
-    asyncSeq {
-        for id in articles do 
+let GetCommentsOfRange(articles : int list) = 
+    asyncSeq { 
+        for id in articles do
             yield! GetCommentsOf id
     }
