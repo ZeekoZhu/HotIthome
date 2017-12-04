@@ -3,8 +3,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition="$(OS)=='Unix'">
-    <FscToolPath>./</FscToolPath>
+  <PropertyGroup>
+    <FscToolPath>$(FSCPATH)</FscToolPath>
     <FscToolExe>fsc.exe</FscToolExe>
   </PropertyGroup>
   <ItemGroup>
