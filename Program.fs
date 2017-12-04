@@ -30,10 +30,17 @@ type CommentWriter() =
     
     member this.Save comments = agent.Post comments
 
+let batch size list = 
+    list
+    |> List.mapi (fun i x -> i, x)
+    |> List.groupBy (fun (i, x) -> i / size)
+    |> List.map (fun (_, x) -> x |> List.map (fun (_, y) -> y))
+
 [<EntryPoint>]
 let main _ = 
     printfn "Hello World from F#!"
     let articleId = 326995
+    let count = 100
     let writer = CommentWriter()
     
     let makeTask id = 
@@ -41,22 +48,20 @@ let main _ =
             try 
                 let! comments = GetCommentsOf id |> AsyncSeq.toListAsync
                 writer.Save comments
+                if (id - articleId) % (count / 100) = 0 then printfn "%d%%" ((id - articleId) / (count / 100))
+                |> ignore
             with Failure e -> failwith e
         }
     File.WriteAllText("./data.json", "[")
-    let rec batchDownload (range : int list) = 
-        if range.Length > 0 then 
-            range
-            |> List.take 200
-            |> List.map makeTask
-            |> Async.Parallel
-            |> Async.RunSynchronously
-            |> ignore
-            if range.Length <= 200 then range
-            else range |> List.skip 200
-            |> batchDownload
-        else ()
-    [ articleId..(articleId + 1000) ] |> batchDownload
+    let batchDownload (range : int list) = 
+        range
+        |> List.map makeTask
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> ignore
+    [ articleId..(articleId + count) ]
+    |> batch count
+    |> List.iter batchDownload
     File.AppendAllText("./data.json", "]")
     printfn "%s" "complete!"
     0
