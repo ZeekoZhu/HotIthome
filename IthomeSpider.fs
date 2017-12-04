@@ -38,7 +38,7 @@ let GetCommentsOf(articleId : int) =
     let parseCommentEntry = parseCommentEntry articleId
     
     let rec loadCommentsAtPage (index : int) = 
-        asyncSeq {
+        asyncSeq { 
             let! hash = getCommentHashOf (string articleId)
             let rec httpRetry() = 
                 async { 
@@ -48,7 +48,6 @@ let GetCommentsOf(articleId : int) =
                                                                       "page", (string index)
                                                                       "type", "commentpage"
                                                                       "hash", hash ])
-
                     match resp.StatusCode with
                     | 504 -> 
                         printfn "retry after 10s"
@@ -62,7 +61,7 @@ let GetCommentsOf(articleId : int) =
                 }
             let! resp = httpRetry()
             match resp with
-            | Ok response ->
+            | Ok response -> 
                 if (response.Length) <> 0 then 
                     let commentsInCurrentPage = 
                         HtmlDocument.Parse("""<html><body>""" + response + """</body></html>""").CssSelect(".entry") 

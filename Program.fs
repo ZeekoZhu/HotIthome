@@ -30,6 +30,23 @@ type CommentWriter() =
     
     member this.Save comments = agent.Post comments
 
+type ProcessWriter(target : int) = 
+    let mutable count = 0
+    
+    member this.Agent = 
+        MailboxProcessor<int>.Start(fun inbox -> 
+            let rec messageLoop() = 
+                async { 
+                    let! size = inbox.Receive()
+                    count <- count + size
+                    printfn "download %d %%" (100 * count / this.Target)
+                    return! messageLoop()
+                }
+            messageLoop())
+    
+    member this.Target = target
+    member this.Update size = this.Agent.Post size
+
 let batch size list = 
     list
     |> List.mapi (fun i x -> i, x)
@@ -40,16 +57,17 @@ let batch size list =
 let main _ = 
     printfn "Hello World from F#!"
     let articleId = 326995
+    let batchSize = 10
     let count = 100
     let writer = CommentWriter()
+    let processWriter = ProcessWriter(count)
     
     let makeTask id = 
         async { 
             try 
                 let! comments = GetCommentsOf id |> AsyncSeq.toListAsync
-                writer.Save comments
-                if (id - articleId) % (count / 100) = 0 then printfn "%d%%" ((id - articleId) / (count / 100))
-                |> ignore
+                writer.Save comments |> ignore
+                processWriter.Update 1
             with Failure e -> failwith e
         }
     File.WriteAllText("./data.json", "[")
@@ -59,8 +77,9 @@ let main _ =
         |> Async.Parallel
         |> Async.RunSynchronously
         |> ignore
-    [ articleId..(articleId + count) ]
-    |> batch count
+        
+    [ articleId..(articleId + count - 1) ]
+    |> batch batchSize
     |> List.iter batchDownload
     File.AppendAllText("./data.json", "]")
     printfn "%s" "complete!"
